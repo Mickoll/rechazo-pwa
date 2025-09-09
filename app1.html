@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Rechazo A/B/C (mm)</title>
+<style>
+  body{font-family:system-ui,sans-serif;margin:24px}
+  h1{font-size:20px;margin:0 0 12px}
+  label{display:block;margin:12px 0 4px}
+  input{width:100%;padding:10px;font-size:16px;box-sizing:border-box}
+  button{margin-top:16px;padding:12px;font-size:16px;width:100%}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .out{margin-top:18px;padding:12px;border:1px solid #ccc;border-radius:8px;white-space:pre-line}
+  .err{color:#b00020;margin-top:8px}
+  .grade{display:block;margin-top:8px;font-weight:700}
+  .grade.A{color:#0a7f2c;font-size:24px}
+  .grade.B{color:#cc7700;font-size:24px}
+  .grade.C{color:#b00020;font-size:32px}
+  .over{display:block;margin-top:8px;color:#b00020;font-size:32px;font-weight:800}
+  small{color:#666}
+</style>
+<h1>Rechazo calculator (mm)</h1>
+
+<label>Goal depth G (mm)</label>
+<input id="G" type="number" min="0" step="1" placeholder="3200" />
+
+<div class="row">
+  <div>
+    <label>Exposed head E (mm)</label>
+    <input id="E" type="number" min="0" step="1" placeholder="450" />
+  </div>
+  <div>
+    <label>Total length L (mm)</label>
+    <input id="L" type="number" min="0" step="1" placeholder="3500" />
+  </div>
+</div>
+
+<button id="calc">Calculate</button>
+<div class="err" id="err"></div>
+<div class="out" id="out" hidden></div>
+<small>Rules: D = max(0, L − E). A 90–100%, B 70–&lt;90%, C &lt;70%. “Sobrehincado” if &gt;100%.</small>
+
+<script>
+const $ = id => document.getElementById(id);
+const KEY="rechazo_goal_depth_mm";
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js'); }
+window.addEventListener("DOMContentLoaded",()=>{
+  const saved = localStorage.getItem(KEY);
+  if(saved) $("G").value = saved;
+});
+$("G").addEventListener("change",()=>localStorage.setItem(KEY,$("G").value));
+
+$("calc").onclick = () => {
+  const G = parseFloat($("G").value);
+  const E = parseFloat($("E").value);
+  const L = parseFloat($("L").value);
+  const err = $("err"), out = $("out");
+  err.textContent = ""; out.hidden = true; out.innerHTML = "";
+
+  if ([G,E,L].some(v => isNaN(v))) { err.textContent = "Enter all three values."; return; }
+  if (G <= 0) { err.textContent = "G must be > 0."; return; }
+  if (E < 0 || L < 0) { err.textContent = "Values must be ≥ 0."; return; }
+  if (E > L) { err.textContent = "E cannot exceed L."; return; }
+
+  const D = Math.max(0, L - E);
+  const pct = (D / G) * 100;
+
+  let cls = null, over = pct > 100;
+  if (!over){
+    if (pct >= 90) cls = "A";
+    else if (pct >= 70) cls = "B";
+    else cls = "C";
+  }
+
+  let html =
+    `Exposed distance: ${E.toFixed(0)} mm\n` +
+    `Embedded depth (L−E): ${D.toFixed(0)} mm\n` +
+    `Depth vs goal: ${pct.toFixed(1)}%`;
+
+  if (over) html += `<span class="over">Sobrehincado</span>`;
+  if (cls) html += `<span class="grade ${cls}">Rechazo ${cls}</span>`;
+
+  out.hidden = false;
+  out.innerHTML = html;
+};
+</script>
+</html>
+
