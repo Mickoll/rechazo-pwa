@@ -9,7 +9,7 @@
   body{font-family:system-ui,sans-serif;margin:24px}
   h1{font-size:20px;margin:0 0 12px}
   label{display:block;margin:12px 0 4px}
-  input{width:100%;padding:10px;font-size:16px;box-sizing:border-box}
+  input{width:100%;padding:10px;font-size:20px;box-sizing:border-box}
   button{margin-top:16px;padding:12px;font-size:16px;width:100%}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .out{margin-top:18px;padding:12px;border:1px solid #ccc;border-radius:8px;white-space:pre-line}
@@ -24,16 +24,16 @@
 <h1>Rechazo calculator (mm)</h1>
 
 <label>Goal depth G (mm)</label>
-<input id="G" type="number" min="0" step="1" placeholder="3200" />
+<input id="G" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="3200" />
 
 <div class="row">
   <div>
     <label>Exposed head E (mm)</label>
-    <input id="E" type="number" min="0" step="1" placeholder="450" />
+    <input id="E" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="450" />
   </div>
   <div>
     <label>Total length L (mm)</label>
-    <input id="L" type="number" min="0" step="1" placeholder="3500" />
+    <input id="L" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="3500" />
   </div>
 </div>
 
@@ -87,4 +87,5 @@ $("calc").onclick = () => {
 };
 </script>
 </html>
+
 
