@@ -1,4 +1,4 @@
-const CACHE = "rechazo-v8";
+const CACHE = "rechazo-v9";
 const ASSETS = ["./", "./index.html", "./sw.js"];
 
 self.addEventListener("install", event => {
