@@ -315,6 +315,10 @@
   </main>
 
   <script>
+    
+    if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js");
+    }
     const $ = id => document.getElementById(id);
 
     const savedFields = ["G", "TMINUS", "TPLUS", "L"];
