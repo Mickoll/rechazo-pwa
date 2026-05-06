@@ -8,7 +8,7 @@
   <style>
     :root {
       --bg: #f5f5f7;
-      --card: rgba(255,255,255,0.88);
+      --card: rgba(255,255,255,0.9);
       --text: #1d1d1f;
       --muted: #6e6e73;
       --line: rgba(0,0,0,0.08);
@@ -33,7 +33,7 @@
     }
 
     .app {
-      max-width: 520px;
+      max-width: 560px;
       margin: 0 auto;
     }
 
@@ -67,7 +67,7 @@
 
     .card-title {
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 750;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--muted);
@@ -81,18 +81,24 @@
       margin: 12px 0 6px;
     }
 
-    input {
+    input, select {
       width: 100%;
       border: 1px solid var(--line);
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.94);
       border-radius: 16px;
-      padding: 14px 14px;
-      font-size: 22px;
+      padding: 14px;
+      font-size: 20px;
       outline: none;
       color: var(--text);
     }
 
-    input:focus {
+    select {
+      font-size: 17px;
+      font-weight: 650;
+      appearance: none;
+    }
+
+    input:focus, select:focus {
       border-color: rgba(0,122,255,0.55);
       box-shadow: 0 0 0 4px rgba(0,122,255,0.12);
     }
@@ -109,7 +115,7 @@
       border-radius: 18px;
       padding: 15px;
       font-size: 17px;
-      font-weight: 750;
+      font-weight: 800;
       color: white;
       background: linear-gradient(180deg, #0a84ff, #0066d6);
       box-shadow: 0 12px 25px rgba(0,122,255,0.24);
@@ -130,7 +136,7 @@
       border-radius: 22px;
       padding: 20px 14px;
       font-size: 34px;
-      font-weight: 850;
+      font-weight: 900;
       letter-spacing: -0.04em;
       margin-bottom: 14px;
     }
@@ -163,7 +169,7 @@
       border-radius: 18px;
       padding: 13px;
       font-size: 18px;
-      font-weight: 750;
+      font-weight: 800;
       margin-bottom: 14px;
     }
 
@@ -175,6 +181,30 @@
     .tol-bad {
       color: var(--red);
       background: rgba(255,59,48,0.13);
+    }
+
+    .action-box {
+      border-radius: 20px;
+      padding: 14px;
+      background: rgba(0,122,255,0.08);
+      border: 1px solid rgba(0,122,255,0.14);
+      margin-bottom: 14px;
+    }
+
+    .action-title {
+      font-size: 13px;
+      font-weight: 850;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 7px;
+    }
+
+    .action-text {
+      font-size: 15px;
+      line-height: 1.4;
+      color: var(--text);
+      font-weight: 600;
     }
 
     .metrics {
@@ -200,13 +230,13 @@
     }
 
     .metric span:last-child {
-      font-weight: 700;
+      font-weight: 750;
       text-align: right;
     }
 
     .error {
       color: var(--red);
-      font-weight: 700;
+      font-weight: 750;
       margin-top: 10px;
     }
 
@@ -218,7 +248,7 @@
       margin-top: 10px;
     }
 
-    @media (max-width: 420px) {
+    @media (max-width: 440px) {
       body { padding: 14px; }
       h1 { font-size: 27px; }
       .grid { grid-template-columns: 1fr; }
@@ -230,49 +260,69 @@
 <body>
   <main class="app">
     <section class="hero">
-      <h1>Calculadora de Rechazo</h1>
-      <div class="subtitle">Hincado en mm con tolerancias de proyecto.</div>
+      <h1 data-i18n="title">Calculadora de Rechazo</h1>
+      <div class="subtitle" data-i18n="subtitle">Hincado con tolerancias de proyecto.</div>
     </section>
 
     <section class="card">
-      <div class="card-title">Ajustes del proyecto</div>
-
-      <label>Profundidad objetivo G (mm)</label>
-      <input id="G" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 3200" autocomplete="off">
+      <div class="card-title" data-i18n="preferences">Preferencias</div>
 
       <div class="grid">
         <div>
-          <label>Tolerancia negativa Tol− (mm)</label>
-          <input id="TMINUS" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 100" autocomplete="off">
+          <label data-i18n="language">Idioma</label>
+          <select id="lang">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+          </select>
         </div>
 
         <div>
-          <label>Tolerancia positiva Tol+ (mm)</label>
-          <input id="TPLUS" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 100" autocomplete="off">
+          <label data-i18n="unit">Unidad</label>
+          <select id="unit">
+            <option value="mm">mm</option>
+            <option value="cm">cm</option>
+          </select>
         </div>
       </div>
-
-      <small>
-        Ejemplo: si G = 3200 mm, Tol− = 100 y Tol+ = 100, el rango aceptable es 3100–3300 mm.
-      </small>
     </section>
 
     <section class="card">
-      <div class="card-title">Medición</div>
+      <div class="card-title" data-i18n="projectSettings">Ajustes del proyecto</div>
+
+      <label><span data-i18n="goalDepth">Profundidad objetivo G</span> (<span class="u">mm</span>)</label>
+      <input id="G" type="tel" inputmode="decimal" placeholder="Ej. 3200" autocomplete="off">
 
       <div class="grid">
         <div>
-          <label>Cabeza expuesta E (mm)</label>
-          <input id="E" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 450" autocomplete="off">
+          <label><span data-i18n="tolMinus">Tolerancia negativa Tol−</span> (<span class="u">mm</span>)</label>
+          <input id="TMINUS" type="tel" inputmode="decimal" placeholder="Ej. 100" autocomplete="off">
         </div>
 
         <div>
-          <label>Longitud total L (mm)</label>
-          <input id="L" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 3500" autocomplete="off">
+          <label><span data-i18n="tolPlus">Tolerancia positiva Tol+</span> (<span class="u">mm</span>)</label>
+          <input id="TPLUS" type="tel" inputmode="decimal" placeholder="Ej. 100" autocomplete="off">
         </div>
       </div>
 
-      <button id="calc">Calcular</button>
+      <small id="exampleText"></small>
+    </section>
+
+    <section class="card">
+      <div class="card-title" data-i18n="measurement">Medición</div>
+
+      <div class="grid">
+        <div>
+          <label><span data-i18n="exposedHead">Cabeza expuesta E</span> (<span class="u">mm</span>)</label>
+          <input id="E" type="tel" inputmode="decimal" placeholder="Ej. 450" autocomplete="off">
+        </div>
+
+        <div>
+          <label><span data-i18n="totalLength">Longitud total L</span> (<span class="u">mm</span>)</label>
+          <input id="L" type="tel" inputmode="decimal" placeholder="Ej. 3500" autocomplete="off">
+        </div>
+      </div>
+
+      <button id="calc" data-i18n="calculate">Calcular</button>
       <div id="error" class="error"></div>
     </section>
 
@@ -280,66 +330,216 @@
       <div id="mainBadge" class="main-badge"></div>
       <div id="tolBadge" class="tolerance"></div>
 
+      <div class="action-box">
+        <div class="action-title" data-i18n="nextAction">Qué hacer</div>
+        <div id="actionText" class="action-text"></div>
+      </div>
+
       <div class="metrics">
         <div class="metric">
-          <span>Cabeza expuesta</span>
+          <span data-i18n="exposedDistance">Cabeza expuesta</span>
           <span id="mE"></span>
         </div>
 
         <div class="metric">
-          <span>Profundidad empotrada</span>
+          <span data-i18n="embeddedDepth">Profundidad empotrada</span>
           <span id="mD"></span>
         </div>
 
         <div class="metric">
-          <span>Objetivo</span>
+          <span data-i18n="target">Objetivo</span>
           <span id="mG"></span>
         </div>
 
         <div class="metric">
-          <span>Cumplimiento</span>
+          <span data-i18n="compliance">Cumplimiento</span>
           <span id="mPct"></span>
         </div>
 
         <div class="metric">
-          <span>Rango aceptable</span>
+          <span data-i18n="acceptableRange">Rango aceptable</span>
           <span id="mRange"></span>
         </div>
 
         <div class="metric">
-          <span>Diferencia vs objetivo</span>
+          <span data-i18n="difference">Diferencia vs objetivo</span>
           <span id="mDiff"></span>
         </div>
       </div>
+
+      <small id="ruleText"></small>
     </section>
   </main>
 
   <script>
-    
     if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js");
+      navigator.serviceWorker.register("./sw.js");
     }
+
     const $ = id => document.getElementById(id);
+
+    const i18n = {
+      es: {
+        title: "Calculadora de Rechazo",
+        subtitle: "Hincado con tolerancias de proyecto.",
+        preferences: "Preferencias",
+        language: "Idioma",
+        unit: "Unidad",
+        projectSettings: "Ajustes del proyecto",
+        goalDepth: "Profundidad objetivo G",
+        tolMinus: "Tolerancia negativa Tol−",
+        tolPlus: "Tolerancia positiva Tol+",
+        measurement: "Medición",
+        exposedHead: "Cabeza expuesta E",
+        totalLength: "Longitud total L",
+        calculate: "Calcular",
+        nextAction: "Qué hacer",
+        exposedDistance: "Cabeza expuesta",
+        embeddedDepth: "Profundidad empotrada",
+        target: "Objetivo",
+        compliance: "Cumplimiento",
+        acceptableRange: "Rango aceptable",
+        difference: "Diferencia vs objetivo",
+        rejectionA: "Rechazo A",
+        rejectionB: "Rechazo B",
+        rejectionC: "Rechazo C",
+        overdriven: "Sobrehincado",
+        tolOk: "Dentro de tolerancia",
+        tolLow: "Fuera de tolerancia por defecto",
+        tolHigh: "Fuera de tolerancia por exceso",
+        errAll: "Introduce todos los valores.",
+        errGoal: "La profundidad objetivo debe ser mayor que 0.",
+        errNegative: "Los valores no pueden ser negativos.",
+        errExposure: "La cabeza expuesta no puede ser mayor que la longitud total.",
+        example: unit => unit === "mm"
+          ? "Ejemplo: G = 3200 mm, Tol− = 100 y Tol+ = 100 → rango aceptable 3100–3300 mm."
+          : "Ejemplo: G = 320 cm, Tol− = 10 y Tol+ = 10 → rango aceptable 310–330 cm.",
+        rules: "Reglas: D = L − E. A = 90–100%, B = 70–<90%, C = <70%. Sobrehincado si >100%.",
+        actions: {
+          A: "Aceptar solo si también está dentro de tolerancia. Registrar la medición y continuar. Verificar verticalidad, alineación y repintado de la cabeza si aplica.",
+          B: "Revisar antes de aceptar. Registrar como observación. Si está fuera de tolerancia, corregir o escalar al responsable técnico/procedimiento del proyecto.",
+          C: "No aceptar como conforme. Parar esa posición, registrar rechazo y avisar al responsable técnico. Evaluar re-hincado, predrill, cimentación alternativa o ensayo según el procedimiento del proyecto.",
+          OVER: "Detener y revisar. Hay exceso frente al objetivo. No aceptar sin validación técnica o del cliente. Registrar como sobrehincado y confirmar si requiere corrección.",
+          TOL_LOW: "Además, está por debajo del rango aceptable. Debe recuperarse profundidad o gestionarse como rechazo según procedimiento.",
+          TOL_HIGH: "Además, está por encima del rango aceptable. Requiere validación antes de aceptar.",
+          TOL_OK: "La medición queda dentro del rango de tolerancia configurado."
+        }
+      },
+      en: {
+        title: "Rejection Calculator",
+        subtitle: "Driven pile/screw check with project tolerances.",
+        preferences: "Preferences",
+        language: "Language",
+        unit: "Unit",
+        projectSettings: "Project settings",
+        goalDepth: "Target depth G",
+        tolMinus: "Negative tolerance Tol−",
+        tolPlus: "Positive tolerance Tol+",
+        measurement: "Measurement",
+        exposedHead: "Exposed head E",
+        totalLength: "Total length L",
+        calculate: "Calculate",
+        nextAction: "Next action",
+        exposedDistance: "Exposed head",
+        embeddedDepth: "Embedded depth",
+        target: "Target",
+        compliance: "Compliance",
+        acceptableRange: "Acceptable range",
+        difference: "Difference vs target",
+        rejectionA: "Rejection A",
+        rejectionB: "Rejection B",
+        rejectionC: "Rejection C",
+        overdriven: "Overdriven",
+        tolOk: "Within tolerance",
+        tolLow: "Out of tolerance: too shallow",
+        tolHigh: "Out of tolerance: too deep",
+        errAll: "Enter all values.",
+        errGoal: "Target depth must be greater than 0.",
+        errNegative: "Values cannot be negative.",
+        errExposure: "Exposed head cannot be greater than total length.",
+        example: unit => unit === "mm"
+          ? "Example: G = 3200 mm, Tol− = 100 and Tol+ = 100 → acceptable range 3100–3300 mm."
+          : "Example: G = 320 cm, Tol− = 10 and Tol+ = 10 → acceptable range 310–330 cm.",
+        rules: "Rules: D = L − E. A = 90–100%, B = 70–<90%, C = <70%. Overdriven if >100%.",
+        actions: {
+          A: "Accept only if also within tolerance. Record the measurement and continue. Check verticality, alignment and repainting of the head if applicable.",
+          B: "Review before accepting. Record as an observation. If outside tolerance, correct or escalate to the technical/project procedure.",
+          C: "Do not accept as compliant. Stop this position, record the rejection and notify the technical responsible person. Assess re-driving, pre-drilling, alternative foundation or testing according to the project procedure.",
+          OVER: "Stop and review. The installed depth exceeds the target. Do not accept without technical/client validation. Record as overdriven and confirm whether correction is required.",
+          TOL_LOW: "Also, it is below the acceptable range. Depth must be recovered or managed as rejection according to the procedure.",
+          TOL_HIGH: "Also, it is above the acceptable range. Validation is required before acceptance.",
+          TOL_OK: "The measurement is within the configured tolerance range."
+        }
+      }
+    };
+
+    let lang = localStorage.getItem("rechazo_lang") || "es";
+    let unit = localStorage.getItem("rechazo_unit") || "mm";
 
     const savedFields = ["G", "TMINUS", "TPLUS", "L"];
 
-    window.addEventListener("DOMContentLoaded", () => {
-      savedFields.forEach(id => {
-        const saved = localStorage.getItem("rechazo_" + id);
-        if (saved !== null) $(id).value = saved;
-      });
-    });
+    function factor() {
+      return unit === "cm" ? 10 : 1;
+    }
 
-    savedFields.forEach(id => {
-      $(id).addEventListener("input", () => {
-        localStorage.setItem("rechazo_" + id, $(id).value);
-      });
-    });
-
-    function num(id) {
-      const value = $(id).value.trim();
+    function parseNumber(raw) {
+      const value = String(raw || "").trim().replace(",", ".");
       if (value === "") return NaN;
-      return Number(value.replace(",", "."));
+      return Number(value);
+    }
+
+    function inputToMm(id) {
+      return parseNumber($(id).value) * factor();
+    }
+
+    function mmToDisplay(mm) {
+      const value = unit === "cm" ? mm / 10 : mm;
+      const decimals = unit === "cm" ? 1 : 0;
+      let text = value.toFixed(decimals);
+      text = text.replace(".0", "");
+      return `${text} ${unit}`;
+    }
+
+    function setText() {
+      const t = i18n[lang];
+
+      document.documentElement.lang = lang;
+      $("lang").value = lang;
+      $("unit").value = unit;
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (t[key]) el.textContent = t[key];
+      });
+
+      document.querySelectorAll(".u").forEach(el => el.textContent = unit);
+      $("exampleText").textContent = t.example(unit);
+      $("ruleText").textContent = t.rules;
+
+      $("G").placeholder = unit === "mm" ? "Ej. 3200" : "Ej. 320";
+      $("TMINUS").placeholder = unit === "mm" ? "Ej. 100" : "Ej. 10";
+      $("TPLUS").placeholder = unit === "mm" ? "Ej. 100" : "Ej. 10";
+      $("E").placeholder = unit === "mm" ? "Ej. 450" : "Ej. 45";
+      $("L").placeholder = unit === "mm" ? "Ej. 3500" : "Ej. 350";
+
+      $("calc").textContent = t.calculate;
+    }
+
+    function loadSavedValues() {
+      savedFields.forEach(id => {
+        const savedMm = localStorage.getItem("rechazo_mm_" + id);
+        if (savedMm !== null && savedMm !== "") {
+          const displayValue = unit === "cm" ? Number(savedMm) / 10 : Number(savedMm);
+          $(id).value = String(displayValue).replace(".0", "");
+        }
+      });
+    }
+
+    function saveFieldAsMm(id) {
+      const raw = parseNumber($(id).value);
+      if (!Number.isNaN(raw)) {
+        localStorage.setItem("rechazo_mm_" + id, String(raw * factor()));
+      }
     }
 
     function setBadge(el, text, cls) {
@@ -347,12 +547,25 @@
       el.textContent = text;
     }
 
+    function buildAction(classification, tolStatus) {
+      const a = i18n[lang].actions;
+      let text = classification === "OVER" ? a.OVER : a[classification];
+
+      if (tolStatus === "LOW") text += " " + a.TOL_LOW;
+      else if (tolStatus === "HIGH") text += " " + a.TOL_HIGH;
+      else text += " " + a.TOL_OK;
+
+      return text;
+    }
+
     function calculate() {
-      const G = num("G");
-      const TMINUS = num("TMINUS");
-      const TPLUS = num("TPLUS");
-      const E = num("E");
-      const L = num("L");
+      const t = i18n[lang];
+
+      const G = inputToMm("G");
+      const TMINUS = inputToMm("TMINUS");
+      const TPLUS = inputToMm("TPLUS");
+      const E = inputToMm("E");
+      const L = inputToMm("L");
 
       const error = $("error");
       const result = $("result");
@@ -363,24 +576,26 @@
       result.style.display = "none";
 
       if ([G, TMINUS, TPLUS, E, L].some(v => Number.isNaN(v))) {
-        error.textContent = "Introduce todos los valores.";
+        error.textContent = t.errAll;
         return;
       }
 
       if (G <= 0) {
-        error.textContent = "La profundidad objetivo debe ser mayor que 0.";
+        error.textContent = t.errGoal;
         return;
       }
 
       if ([TMINUS, TPLUS, E, L].some(v => v < 0)) {
-        error.textContent = "Los valores no pueden ser negativos.";
+        error.textContent = t.errNegative;
         return;
       }
 
       if (E > L) {
-        error.textContent = "La cabeza expuesta no puede ser mayor que la longitud total.";
+        error.textContent = t.errExposure;
         return;
       }
+
+      ["G", "TMINUS", "TPLUS", "L"].forEach(saveFieldAsMm);
 
       const D = L - E;
       const pct = (D / G) * 100;
@@ -388,57 +603,94 @@
       const max = G + TPLUS;
       const diff = D - G;
 
+      let classification = "";
       let mainText = "";
       let mainClass = "main-badge ";
 
       if (pct > 100) {
-        mainText = "Sobrehincado";
+        classification = "OVER";
+        mainText = t.overdriven;
         mainClass += "badge-over";
       } else if (pct >= 90) {
-        mainText = "Rechazo A";
+        classification = "A";
+        mainText = t.rejectionA;
         mainClass += "badge-a";
       } else if (pct >= 70) {
-        mainText = "Rechazo B";
+        classification = "B";
+        mainText = t.rejectionB;
         mainClass += "badge-b";
       } else {
-        mainText = "Rechazo C";
+        classification = "C";
+        mainText = t.rejectionC;
         mainClass += "badge-c";
       }
 
+      let tolStatus = "";
       let tolText = "";
       let tolClass = "tolerance ";
 
       if (D < min) {
-        tolText = "Fuera de tolerancia por defecto";
+        tolStatus = "LOW";
+        tolText = t.tolLow;
         tolClass += "tol-bad";
       } else if (D > max) {
-        tolText = "Fuera de tolerancia por exceso";
+        tolStatus = "HIGH";
+        tolText = t.tolHigh;
         tolClass += "tol-bad";
       } else {
-        tolText = "Dentro de tolerancia";
+        tolStatus = "OK";
+        tolText = t.tolOk;
         tolClass += "tol-ok";
       }
 
       setBadge(mainBadge, mainText, mainClass);
       setBadge(tolBadge, tolText, tolClass);
 
-      $("mE").textContent = `${E.toFixed(0)} mm`;
-      $("mD").textContent = `${D.toFixed(0)} mm`;
-      $("mG").textContent = `${G.toFixed(0)} mm`;
+      $("actionText").textContent = buildAction(classification, tolStatus);
+
+      $("mE").textContent = mmToDisplay(E);
+      $("mD").textContent = mmToDisplay(D);
+      $("mG").textContent = mmToDisplay(G);
       $("mPct").textContent = `${pct.toFixed(1)}%`;
-      $("mRange").textContent = `${min.toFixed(0)} – ${max.toFixed(0)} mm`;
-      $("mDiff").textContent = `${diff >= 0 ? "+" : ""}${diff.toFixed(0)} mm`;
+      $("mRange").textContent = `${mmToDisplay(min)} – ${mmToDisplay(max)}`;
+      $("mDiff").textContent = `${diff >= 0 ? "+" : ""}${mmToDisplay(Math.abs(diff))}`;
 
       result.style.display = "block";
     }
 
-    $("calc").addEventListener("click", calculate);
+    $("lang").addEventListener("change", () => {
+      lang = $("lang").value;
+      localStorage.setItem("rechazo_lang", lang);
+      setText();
+      if ($("result").style.display === "block") calculate();
+    });
 
-    ["G", "TMINUS", "TPLUS", "E", "L"].forEach(id => {
+    $("unit").addEventListener("change", () => {
+      savedFields.forEach(saveFieldAsMm);
+      unit = $("unit").value;
+      localStorage.setItem("rechazo_unit", unit);
+      loadSavedValues();
+      setText();
+      if ($("result").style.display === "block") calculate();
+    });
+
+    savedFields.forEach(id => {
       $(id).addEventListener("input", () => {
+        saveFieldAsMm(id);
         if ($("result").style.display === "block") calculate();
       });
     });
+
+    $("E").addEventListener("input", () => {
+      if ($("result").style.display === "block") calculate();
+    });
+
+    $("calc").addEventListener("click", calculate);
+
+    $("lang").value = lang;
+    $("unit").value = unit;
+    loadSavedValues();
+    setText();
   </script>
 </body>
 </html>
