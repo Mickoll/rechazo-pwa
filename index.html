@@ -1,91 +1,440 @@
 <!doctype html>
-<html lang="en">
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.webmanifest">
-<title>Rechazo A/B/C (mm)</title>
-<style>
-  body{font-family:system-ui,sans-serif;margin:24px}
-  h1{font-size:20px;margin:0 0 12px}
-  label{display:block;margin:12px 0 4px}
-  input{width:100%;padding:10px;font-size:20px;box-sizing:border-box}
-  button{margin-top:16px;padding:12px;font-size:16px;width:100%}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .out{margin-top:18px;padding:12px;border:1px solid #ccc;border-radius:8px;white-space:pre-line}
-  .err{color:#b00020;margin-top:8px}
-  .grade{display:block;margin-top:8px;font-weight:700}
-  .grade.A{color:#0a7f2c;font-size:24px}
-  .grade.B{color:#cc7700;font-size:24px}
-  .grade.C{color:#b00020;font-size:32px}
-  .over{display:block;margin-top:8px;color:#b00020;font-size:32px;font-weight:800}
-  small{color:#666}
-</style>
-<h1>Rechazo calculator (mm)</h1>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rechazo Hincado</title>
 
-<label>Goal depth G (mm)</label>
-<input id="G" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="3200" />
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card: rgba(255,255,255,0.88);
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --line: rgba(0,0,0,0.08);
+      --blue: #007aff;
+      --green: #0a7f2c;
+      --orange: #c46b00;
+      --red: #b00020;
+      --shadow: 0 18px 45px rgba(0,0,0,0.08);
+    }
 
-<div class="row">
-  <div>
-    <label>Exposed head E (mm)</label>
-    <input id="E" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="450" />
-  </div>
-  <div>
-    <label>Total length L (mm)</label>
-    <input id="L" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="3500" />
-  </div>
-</div>
+    * { box-sizing: border-box; }
 
-<button id="calc">Calculate</button>
-<div class="err" id="err"></div>
-<div class="out" id="out" hidden></div>
-<small>Rules: D = max(0, L − E). A 90–100%, B 70–&lt;90%, C &lt;70%. “Sobrehincado” if &gt;100%.</small>
+    body {
+      margin: 0;
+      padding: 18px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(0,122,255,0.12), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(52,199,89,0.12), transparent 30%),
+        var(--bg);
+      color: var(--text);
+    }
 
-<script>
-const $ = id => document.getElementById(id);
-const KEY="rechazo_goal_depth_mm";
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js'); }
-window.addEventListener("DOMContentLoaded",()=>{
-  const saved = localStorage.getItem(KEY);
-  if(saved) $("G").value = saved;
-});
-$("G").addEventListener("change",()=>localStorage.setItem(KEY,$("G").value));
+    .app {
+      max-width: 520px;
+      margin: 0 auto;
+    }
 
-$("calc").onclick = () => {
-  const G = parseFloat($("G").value);
-  const E = parseFloat($("E").value);
-  const L = parseFloat($("L").value);
-  const err = $("err"), out = $("out");
-  err.textContent = ""; out.hidden = true; out.innerHTML = "";
+    .hero {
+      margin: 12px 0 18px;
+    }
 
-  if ([G,E,L].some(v => isNaN(v))) { err.textContent = "Enter all three values."; return; }
-  if (G <= 0) { err.textContent = "G must be > 0."; return; }
-  if (E < 0 || L < 0) { err.textContent = "Values must be ≥ 0."; return; }
-  if (E > L) { err.textContent = "E cannot exceed L."; return; }
+    h1 {
+      font-size: 30px;
+      line-height: 1.05;
+      margin: 0;
+      letter-spacing: -0.04em;
+    }
 
-  const D = Math.max(0, L - E);
-  const pct = (D / G) * 100;
+    .subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 15px;
+    }
 
-  let cls = null, over = pct > 100;
-  if (!over){
-    if (pct >= 90) cls = "A";
-    else if (pct >= 70) cls = "B";
-    else cls = "C";
-  }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
 
-  let html =
-    `Exposed distance: ${E.toFixed(0)} mm\n` +
-    `Embedded depth (L−E): ${D.toFixed(0)} mm\n` +
-    `Depth vs goal: ${pct.toFixed(1)}%`;
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
 
-  if (over) html += `<span class="over">Sobrehincado</span>`;
-  if (cls) html += `<span class="grade ${cls}">Rechazo ${cls}</span>`;
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 650;
+      margin: 12px 0 6px;
+    }
 
-  out.hidden = false;
-  out.innerHTML = html;
-};
-</script>
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.92);
+      border-radius: 16px;
+      padding: 14px 14px;
+      font-size: 22px;
+      outline: none;
+      color: var(--text);
+    }
+
+    input:focus {
+      border-color: rgba(0,122,255,0.55);
+      box-shadow: 0 0 0 4px rgba(0,122,255,0.12);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 18px;
+      padding: 15px;
+      font-size: 17px;
+      font-weight: 750;
+      color: white;
+      background: linear-gradient(180deg, #0a84ff, #0066d6);
+      box-shadow: 0 12px 25px rgba(0,122,255,0.24);
+      margin-top: 14px;
+    }
+
+    button:active {
+      transform: scale(0.99);
+    }
+
+    .result {
+      display: none;
+    }
+
+    .main-badge {
+      display: block;
+      text-align: center;
+      border-radius: 22px;
+      padding: 20px 14px;
+      font-size: 34px;
+      font-weight: 850;
+      letter-spacing: -0.04em;
+      margin-bottom: 14px;
+    }
+
+    .badge-a {
+      color: var(--green);
+      background: rgba(52,199,89,0.13);
+    }
+
+    .badge-b {
+      color: var(--orange);
+      background: rgba(255,149,0,0.16);
+    }
+
+    .badge-c {
+      color: var(--red);
+      background: rgba(255,59,48,0.14);
+      font-size: 40px;
+    }
+
+    .badge-over {
+      color: var(--red);
+      background: rgba(255,59,48,0.14);
+      font-size: 38px;
+    }
+
+    .tolerance {
+      display: block;
+      text-align: center;
+      border-radius: 18px;
+      padding: 13px;
+      font-size: 18px;
+      font-weight: 750;
+      margin-bottom: 14px;
+    }
+
+    .tol-ok {
+      color: var(--green);
+      background: rgba(52,199,89,0.12);
+    }
+
+    .tol-bad {
+      color: var(--red);
+      background: rgba(255,59,48,0.13);
+    }
+
+    .metrics {
+      display: grid;
+      gap: 8px;
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 15px;
+    }
+
+    .metric:last-child {
+      border-bottom: 0;
+    }
+
+    .metric span:first-child {
+      color: var(--muted);
+    }
+
+    .metric span:last-child {
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .error {
+      color: var(--red);
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 420px) {
+      body { padding: 14px; }
+      h1 { font-size: 27px; }
+      .grid { grid-template-columns: 1fr; }
+      .main-badge { font-size: 31px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <section class="hero">
+      <h1>Calculadora de Rechazo</h1>
+      <div class="subtitle">Hincado en mm con tolerancias de proyecto.</div>
+    </section>
+
+    <section class="card">
+      <div class="card-title">Ajustes del proyecto</div>
+
+      <label>Profundidad objetivo G (mm)</label>
+      <input id="G" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 3200" autocomplete="off">
+
+      <div class="grid">
+        <div>
+          <label>Tolerancia negativa Tol− (mm)</label>
+          <input id="TMINUS" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 100" autocomplete="off">
+        </div>
+
+        <div>
+          <label>Tolerancia positiva Tol+ (mm)</label>
+          <input id="TPLUS" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 100" autocomplete="off">
+        </div>
+      </div>
+
+      <small>
+        Ejemplo: si G = 3200 mm, Tol− = 100 y Tol+ = 100, el rango aceptable es 3100–3300 mm.
+      </small>
+    </section>
+
+    <section class="card">
+      <div class="card-title">Medición</div>
+
+      <div class="grid">
+        <div>
+          <label>Cabeza expuesta E (mm)</label>
+          <input id="E" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 450" autocomplete="off">
+        </div>
+
+        <div>
+          <label>Longitud total L (mm)</label>
+          <input id="L" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 3500" autocomplete="off">
+        </div>
+      </div>
+
+      <button id="calc">Calcular</button>
+      <div id="error" class="error"></div>
+    </section>
+
+    <section id="result" class="card result">
+      <div id="mainBadge" class="main-badge"></div>
+      <div id="tolBadge" class="tolerance"></div>
+
+      <div class="metrics">
+        <div class="metric">
+          <span>Cabeza expuesta</span>
+          <span id="mE"></span>
+        </div>
+
+        <div class="metric">
+          <span>Profundidad empotrada</span>
+          <span id="mD"></span>
+        </div>
+
+        <div class="metric">
+          <span>Objetivo</span>
+          <span id="mG"></span>
+        </div>
+
+        <div class="metric">
+          <span>Cumplimiento</span>
+          <span id="mPct"></span>
+        </div>
+
+        <div class="metric">
+          <span>Rango aceptable</span>
+          <span id="mRange"></span>
+        </div>
+
+        <div class="metric">
+          <span>Diferencia vs objetivo</span>
+          <span id="mDiff"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    const savedFields = ["G", "TMINUS", "TPLUS", "L"];
+
+    window.addEventListener("DOMContentLoaded", () => {
+      savedFields.forEach(id => {
+        const saved = localStorage.getItem("rechazo_" + id);
+        if (saved !== null) $(id).value = saved;
+      });
+    });
+
+    savedFields.forEach(id => {
+      $(id).addEventListener("input", () => {
+        localStorage.setItem("rechazo_" + id, $(id).value);
+      });
+    });
+
+    function num(id) {
+      const value = $(id).value.trim();
+      if (value === "") return NaN;
+      return Number(value.replace(",", "."));
+    }
+
+    function setBadge(el, text, cls) {
+      el.className = cls;
+      el.textContent = text;
+    }
+
+    function calculate() {
+      const G = num("G");
+      const TMINUS = num("TMINUS");
+      const TPLUS = num("TPLUS");
+      const E = num("E");
+      const L = num("L");
+
+      const error = $("error");
+      const result = $("result");
+      const mainBadge = $("mainBadge");
+      const tolBadge = $("tolBadge");
+
+      error.textContent = "";
+      result.style.display = "none";
+
+      if ([G, TMINUS, TPLUS, E, L].some(v => Number.isNaN(v))) {
+        error.textContent = "Introduce todos los valores.";
+        return;
+      }
+
+      if (G <= 0) {
+        error.textContent = "La profundidad objetivo debe ser mayor que 0.";
+        return;
+      }
+
+      if ([TMINUS, TPLUS, E, L].some(v => v < 0)) {
+        error.textContent = "Los valores no pueden ser negativos.";
+        return;
+      }
+
+      if (E > L) {
+        error.textContent = "La cabeza expuesta no puede ser mayor que la longitud total.";
+        return;
+      }
+
+      const D = L - E;
+      const pct = (D / G) * 100;
+      const min = G - TMINUS;
+      const max = G + TPLUS;
+      const diff = D - G;
+
+      let mainText = "";
+      let mainClass = "main-badge ";
+
+      if (pct > 100) {
+        mainText = "Sobrehincado";
+        mainClass += "badge-over";
+      } else if (pct >= 90) {
+        mainText = "Rechazo A";
+        mainClass += "badge-a";
+      } else if (pct >= 70) {
+        mainText = "Rechazo B";
+        mainClass += "badge-b";
+      } else {
+        mainText = "Rechazo C";
+        mainClass += "badge-c";
+      }
+
+      let tolText = "";
+      let tolClass = "tolerance ";
+
+      if (D < min) {
+        tolText = "Fuera de tolerancia por defecto";
+        tolClass += "tol-bad";
+      } else if (D > max) {
+        tolText = "Fuera de tolerancia por exceso";
+        tolClass += "tol-bad";
+      } else {
+        tolText = "Dentro de tolerancia";
+        tolClass += "tol-ok";
+      }
+
+      setBadge(mainBadge, mainText, mainClass);
+      setBadge(tolBadge, tolText, tolClass);
+
+      $("mE").textContent = `${E.toFixed(0)} mm`;
+      $("mD").textContent = `${D.toFixed(0)} mm`;
+      $("mG").textContent = `${G.toFixed(0)} mm`;
+      $("mPct").textContent = `${pct.toFixed(1)}%`;
+      $("mRange").textContent = `${min.toFixed(0)} – ${max.toFixed(0)} mm`;
+      $("mDiff").textContent = `${diff >= 0 ? "+" : ""}${diff.toFixed(0)} mm`;
+
+      result.style.display = "block";
+    }
+
+    $("calc").addEventListener("click", calculate);
+
+    ["G", "TMINUS", "TPLUS", "E", "L"].forEach(id => {
+      $(id).addEventListener("input", () => {
+        if ($("result").style.display === "block") calculate();
+      });
+    });
+  </script>
+</body>
 </html>
-
-
