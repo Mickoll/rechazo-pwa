@@ -476,7 +476,7 @@
     let lang = localStorage.getItem("rechazo_lang") || "es";
     let unit = localStorage.getItem("rechazo_unit") || "mm";
 
-    const savedFields = ["G", "TMINUS", "TPLUS", "L"];
+    const savedFields = ["G", "TMINUS", "TPLUS", "E", "L"];
 
     function factor() {
       return unit === "cm" ? 10 : 1;
